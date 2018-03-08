@@ -33,12 +33,11 @@ int trainSetSize = 60000;
   void PrintImg(std::vector<double> in){
     unsigned count = 0;
     for(std::vector<double>::iterator it = in.begin(); it != in.end(); ++it){
-        /*if(*it > 10){
+        if(*it > 10){
           std::cout<<"X";
         }else{
           std::cout<<" ";
-        }*/
-        std::cout<<*it;
+        }
       // std::cout << *it;
         count++;
         if(count==28){
@@ -47,19 +46,6 @@ int trainSetSize = 60000;
         }
       }   
   }
-
-  double classify(std::vector<double> output){
-    unsigned imax = 0;
-    double valmax = 0;
-    for(unsigned i = 0; i< output.size(); i++){
-      if(output[i] > valmax){
-        valmax = output[i];
-        imax = i;
-      }
-    }
-    return (double)imax;
-  }
-  
 int main(){
   /* Load training Data */
   std::vector<std::vector<double> > trainData;
@@ -96,7 +82,7 @@ int main(){
   unsigned numInputs = 28*28;
   unsigned numOutputs = 10;
   unsigned hiddenLayerSize = 30;
-  unsigned numReps = 30;
+  unsigned numReps = 10000;
   std::vector<unsigned> netStructure;
   netStructure.push_back(numInputs);
   netStructure.push_back(hiddenLayerSize);
@@ -109,51 +95,20 @@ int main(){
   targets.resize(numOutputs);
   std::fill(targets.begin(),targets.end(), 0.0);
 
-
+  std::vector<unsigned short>::iterator itLabel = trainLabels.begin();
   
   for(unsigned rep = 0; rep < numReps; rep++){
-    std::vector<unsigned short>::iterator itLabel = trainLabels.begin();
     for(unsigned img = 0; img < dataSize; img++){
       SetTargets(*itLabel, targets);
       myNet.feedForward(trainData[img]);
       //PrintImg(trainData[img]);
       myNet.getResults(results);
-      //PrintVals(results,"Results: ",10);
-      //PrintVals(targets, "Targets: ",10);
+      PrintVals(results,"Results: ",10);
+      PrintVals(targets, "Targets: ",10);
       myNet.backPropagate(targets);
       PrintRecentAvgError(myNet);
       itLabel++;
     }
   }
-
-
-  /**************Test on test data********************/
-    /* Load training Data */
-  std::vector<std::vector<double> > testData;
-  ReadMNIST(testSetSize,784,testData,testDataPath);
-
-  /* Load Training Labels */
-  std::vector<unsigned short> testLabels;
-  ReadLabelsMNIST(testSetSize, testLabels, testLabelPath);
-  unsigned correct = 0;
-  unsigned tot = 0;
-  std::vector<unsigned short>::iterator itLabel = testLabels.begin();
-  for(unsigned img = 0; img < dataSize; img++){
-    myNet.feedForward(testData[img]);
-    myNet.getResults(results);
-    double classifiedDigit = classify(results);
-    if(classifiedDigit == testLabels[img]){
-      correct++;
-      std::cout<<"CORRECT"<<std::endl;
-    }else{
-      std::cout<<"INCORRECT"<<std::endl;
-    }
-    itLabel++;
-    tot++;
-  }
-
-  double Accuracy = (double)correct / (double)tot;
-  std::cout<<"\n\nAccuracy = "<<Accuracy<<std::endl;
-
   return 0;
 }

@@ -5,6 +5,7 @@
 /*************** Function Definitions for Class Net ******************/
 Net::Net(const std::vector<unsigned> &netStructure){
   unsigned numLayers = netStructure.size();
+  m_recentAverageSmoothingFactor = 0.25;
   for (unsigned layerNum = 0; layerNum < numLayers; layerNum++){
     // Create Layer
     m_layers.push_back(Layer());
@@ -20,10 +21,10 @@ Net::Net(const std::vector<unsigned> &netStructure){
     // Add Neurons to new layer (one extra neuron in each layer for offset)
     for(unsigned neuronNum = 0; neuronNum <= netStructure[layerNum]; neuronNum++){
       m_layers.back().push_back(Neuron(numOutputs,neuronNum));
-      std::cout<<"Created Neuron. Layer: "<<layerNum<<"\tNeuron: "<<neuronNum<<std::endl;
+      //std::cout<<"Created Neuron. Layer: "<<layerNum<<"\tNeuron: "<<neuronNum<<std::endl;
     }
     //Set Bias to 1
-    m_layers.back().back().setOutputVal(1.0);
+    m_layers.back().back().setOutputVal(-1.0);
   }
 }
 
@@ -46,18 +47,20 @@ void Net::backPropagate(const std::vector<double> &targetVals){
   Layer &outputLayer = m_layers.back();
   m_error = 0.0;
 
+// std::cout<<"Output Layer: "<<std::endl;
   for(unsigned n = 0; n<outputLayer.size() - 1; n++){
     double delta = targetVals[n] - outputLayer[n].getOutputVal();
     m_error += delta*delta;
   }
   m_error /= (outputLayer.size()-1);
   m_error = sqrt(m_error);
-
+//  std::cout<<"m_error: "<<m_error<<std::endl;
   // Recent average measurement
   m_recentAverageError =  (m_recentAverageError * m_recentAverageSmoothingFactor + m_error) \
                         / (m_recentAverageSmoothingFactor + 1.0);
 
   // Calculate output layer gradients
+      //std::cout<<"output gradient: ";
   for (unsigned n = 0; n<outputLayer.size(); n++){
     outputLayer[n].calcOutputGradient(targetVals[n]);
   }
@@ -113,16 +116,19 @@ void Neuron::computeOutput(Layer &prevLayer){
 }
 
 double Neuron::transferFunction(const double in){
-  return tanh(in);
+  //return tanh(in);
+  return (double)(1.0 / (1.0 + std::exp(-1*in)));
 }
 
 double Neuron::deltaTransferFunction(const double in){
-  return (1.0 - in*in);
+  //return (1.0 - in*in); tanh
+  return (double)(transferFunction(in)*(1-transferFunction(in)));
 }
 
 void Neuron::calcOutputGradient(double targetVal){
   double delta = targetVal - m_outputVal;
   m_gradient = delta * Neuron::deltaTransferFunction(m_outputVal);
+  //std::cout<<"m_gradient: "<<m_gradient<<std::endl;
 }
 
 double Neuron::sumDOW(const Layer &nextLayer){
@@ -138,6 +144,7 @@ double Neuron::sumDOW(const Layer &nextLayer){
 void Neuron::calcHiddenLayerGradients(Layer &nextLayer){
   double dow = sumDOW(nextLayer);
   m_gradient = dow * Neuron::deltaTransferFunction(m_outputVal);
+  //std::cout<<"Hidden Layer Gradient: "<<m_gradient<<std::endl;
 }
 
 void Neuron::updateInputWeights(Layer &prevLayer){

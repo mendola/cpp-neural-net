@@ -1,6 +1,7 @@
  
 #include "loadDigits.h"
 #include "iostream"
+#include <cassert>
 
 int ReverseInt (int i)
 {
@@ -10,6 +11,11 @@ int ReverseInt (int i)
     ch3=(i>>16)&255;
     ch4=(i>>24)&255;
     return((int)ch1<<24)+((int)ch2<<16)+((int)ch3<<8)+ch4;
+}
+
+unsigned IndexFromDouble(double input){
+  assert(input>=0.0 && input<1.0);
+  return(unsigned)input;
 }
 
 void ReadMNIST(int NumberOfImages, int DataOfAnImage,std::vector<std::vector<double> > &arr, const char* path)
@@ -40,7 +46,7 @@ void ReadMNIST(int NumberOfImages, int DataOfAnImage,std::vector<std::vector<dou
                 {
                     unsigned char temp=0;
                     file.read((char*)&temp,sizeof(temp));
-                    arr[i][(n_rows*r)+c]= (double)temp;
+                    arr[i][(n_rows*r)+c]= (double)temp / 256;
                 }
             }
         }
