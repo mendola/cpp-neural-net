@@ -25,6 +25,7 @@ class Net{
     void feedForward(const std::vector<double> &inputVals);
     void backPropagate(const std::vector<double> &targetVals);
     void getResults(std::vector<double> &resultVals);
+    double getRecentAvgError() {return m_recentAverageError;}
   private:
     std::vector<Layer> m_layers;  // m_layers[Layer #][Neuron #]
     double m_error;
