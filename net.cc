@@ -3,7 +3,7 @@
 #include <cmath>
 
 /*************** Function Definitions for Class Net ******************/
-Net::Net(const std::vector<unsigned> &netStructure){
+Net::Net(const std::vector<unsigned> &netStructure, double Eta, double Alpha){
   unsigned numLayers = netStructure.size();
   m_recentAverageSmoothingFactor = 0.25;
   for (unsigned layerNum = 0; layerNum < numLayers; layerNum++){
@@ -20,7 +20,7 @@ Net::Net(const std::vector<unsigned> &netStructure){
 
     // Add Neurons to new layer (one extra neuron in each layer for offset)
     for(unsigned neuronNum = 0; neuronNum <= netStructure[layerNum]; neuronNum++){
-      m_layers.back().push_back(Neuron(numOutputs,neuronNum));
+      m_layers.back().push_back(Neuron(numOutputs,neuronNum,Eta, Alpha));
       //std::cout<<"Created Neuron. Layer: "<<layerNum<<"\tNeuron: "<<neuronNum<<std::endl;
     }
     //Set Bias to 1
@@ -95,10 +95,10 @@ void Net::getResults(std::vector<double> &resultVals){
 
 
 /***********Function Definitions for class Neuron ***********************/
-double Neuron::eta = 0.15;
-double Neuron::alpha = 0.5;
-Neuron::Neuron(const unsigned numOutputs, const unsigned index){
+Neuron::Neuron(const unsigned numOutputs, const unsigned index, double Eta, double Alpha){
   m_neuronIndex = index;
+  eta = Eta;
+  alpha = Alpha;
   for(unsigned connectionNum = 0; connectionNum < numOutputs; connectionNum++){
     m_outputConnections.push_back(Connection());
   }

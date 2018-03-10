@@ -17,4 +17,4 @@ xor.o: xor.cc xor.h
 	$(CC) -c xor.cc -g
 
 clean:
-	rm -rf *.o
+	rm -rf *.o main

@@ -21,7 +21,7 @@ class Connection{
 
 class Net{
   public:
-    Net(const std::vector<unsigned> &netStructure);
+    Net(const std::vector<unsigned> &netStructure, double Eta, double Alpha);
     void feedForward(const std::vector<double> &inputVals);
     void backPropagate(const std::vector<double> &targetVals);
     void getResults(std::vector<double> &resultVals);
@@ -36,7 +36,7 @@ class Net{
 
 class Neuron{
   public:
-    Neuron(const unsigned numOutputs, const unsigned index);
+    Neuron(const unsigned numOutputs, const unsigned index, double Eta, double Alpha);
     void setOutputVal(const double oVal) {m_outputVal = oVal;}
     double getOutputVal() {return m_outputVal;}
     void computeOutput(Layer &prevLayer);
@@ -46,9 +46,9 @@ class Neuron{
     void updateInputWeights(Layer &prevLayer);
     void setAlpha(double a);
     void setEta(double e);
+    double eta;  // Overal Net learning rate [0.0 -- 1.0]
+    double alpha; // Momentum [0.0 -- 1.0]
   private:
-    static double eta;  // Overal Net learning rate [0.0 -- 1.0]
-    static double alpha; // Momentum [0.0 -- 1.0]
     unsigned m_neuronIndex;
     double m_outputVal;
     std::vector<Connection> m_outputConnections;
