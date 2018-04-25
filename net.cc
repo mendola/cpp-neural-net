@@ -60,7 +60,7 @@ void Net::backPropagate(const std::vector<double> &targetVals){
   // Recent average measurement
   m_recentAverageError =  (m_recentAverageError * m_recentAverageSmoothingFactor + m_error) \
                         / (m_recentAverageSmoothingFactor + 1.0);
-  std::cout<<"Recent Error: "<<m_recentAverageError<<std::endl;
+  //std::cout<<"Recent Error: "<<m_recentAverageError<<std::endl;
   // Calculate output layer gradients
       //std::cout<<"output gradient: ";
   for (unsigned n = 0; n<outputLayer.size(); n++){
@@ -114,6 +114,19 @@ double Net::classify(std::vector<double> output){
   return (double)imax;
 }
 
+void Net::printWeightsNet(){
+  for(unsigned l = 0; l < m_layers.size()-1; l++){
+    std::cout<<"\nLayer "<<l<<": "<<std::endl;
+    Layer currLayer = m_layers[l];
+    for(unsigned n = 0; n < currLayer.size(); n++){
+      std::cout<<"\n\tNeuron "<<n<<": "<<std::endl;
+      Neuron currNeuron = currLayer[n];
+      currNeuron.printWeightsNeuron();
+    }
+  }
+
+}
+
 void Net::TrainSGD(unsigned nEpochs, std::vector<std::vector<double> > &trainData, std::vector<unsigned short> &trainLabels){
   unsigned nSamples = trainData.size();
 
@@ -140,7 +153,8 @@ void Net::TrainSGD(unsigned nEpochs, std::vector<std::vector<double> > &trainDat
       //PrintVals(targets, "Targets: ",10);
       backPropagate(targets);
       //PrintRecentAvgError(myNet);
-    }    
+    }   
+    printWeightsNet(); 
   }
 }
 
@@ -241,4 +255,11 @@ void Neuron::updateInputWeights(Layer &prevLayer){
     neuron.m_outputConnections[m_neuronIndex].m_weight += newDeltaWeight;
   }
 }
+
+void Neuron::printWeightsNeuron(){
+  for(unsigned w = 0; w <= m_outputConnections.size(); w++){
+    std::cout<<m_outputConnections[w].m_weight<<" ";
+  }
+}
+
 

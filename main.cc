@@ -64,6 +64,7 @@ int main(){
     for(unsigned j = 0; j< 1; j++){
       std::cout<<"Working on i="<<i<<"  j="<<j<<std::endl;
       Net myNet(netStructure,etaVals[i],alphaVals[j]);
+//      myNet.printWeightsNet
       double acc;
       for(unsigned epoch = 0; epoch < numEpochs; epoch++){
         myNet.TrainSGD(1,trainData, trainLabels);
