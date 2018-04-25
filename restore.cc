@@ -8,7 +8,8 @@ const char* testDataPath = "data/t10k-images-idx3-ubyte";
 const char* testLabelPath = "data/t10k-labels-idx1-ubyte";
 const char* trainDataPath = "data/train-images-idx3-ubyte";
 const char* trainLabelPath = "data/train-labels-idx1-ubyte";
-const char* savepath = "model.txt";
+const char* loadpath = "model.txt";
+
 int testSetSize = 10000;
 int trainSetSize = 60000;
 
@@ -21,7 +22,6 @@ void PrintVals(std::vector<double> &in, const char* str, unsigned checkSize){
   std::cout<<std::endl;
   assert(in.size() == checkSize);
 }
-
 
   
 int main(){
@@ -57,14 +57,9 @@ int main(){
 
   Net myNet(netStructure,eta,alpha);
 
-  for(unsigned i = 0; i<2; i++){
-    double acc = myNet.TrainEarlyStopping(50,15,trainData,trainLabels,testData,testLabels);
-    std::cout<<"Accuracy after ith round of optimization: "<<acc<<std::endl;
-    eta = 0.5*eta;
-    alpha = 0.5*alpha;
-    myNet.AdjustTrainingRate(eta,alpha);
+  if(!myNet.LoadWeights(loadpath)){
+    double acc = myNet.TestSGD(testData, testLabels);
+    std::cout<<"Accuracy: "<<acc<<std::endl;
   }
-  myNet.SaveWeights(savepath);
-
   return 0;
 }
