@@ -65,42 +65,6 @@ int main(){
     myNet.AdjustTrainingRate(eta,alpha);
   }
   myNet.SaveWeights(savepath);
-  /*
-  double etaVals[5] = {0.1,0.15};
-  double alphaVals[1] = {0.1};
-  std::vector<std::vector<double> > accuracies;
-  accuracies.resize(5);
-  for(unsigned i = 0; i<5; i++){
-    accuracies[i].resize(5);
-  }
-  
-  
-  for(unsigned i = 0; i < 2; i++){
-    for(unsigned j = 0; j< 1; j++){
-      std::cout<<"Working on i="<<i<<"  j="<<j<<std::endl;
-      Net myNet(netStructure,etaVals[i],alphaVals[j]);
-//      myNet.printWeightsNet
-      double acc = myNet.TrainEarlyStopping(100,15,trainData,trainLabels,testData,testLabels);
-      accuracies[i][j] = acc;  
-    }
-  }
 
-  std::cout<<"Parameter Accuracy relationship: "<<std::endl;
-  int imax = 0;
-  int jmax = 0;
-  double bestAccuracy = 0;
-  for(int i = 0; i< 2; i++){
-    for(int j = 0; j<1; j++){
-      std::cout<<"Eta = "<<etaVals[i]<<". Alpha = "<<alphaVals[j]<<".  Accuracy = "<<accuracies[i][j]<<std::endl;
-      if(accuracies[i][j]>bestAccuracy){
-        imax = i;
-        jmax = j;
-        bestAccuracy = accuracies[i][j];
-      }
-    }
-  }
-
-  std::cout<<"Best parameters: Eta = "<<etaVals[imax] << "  Alpha = "<<alphaVals[jmax]<<std::endl;
- */
   return 0;
 }

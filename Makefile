@@ -1,8 +1,12 @@
 CC=g++
 CFLAGS=-I
 
-all:	main.o net.o loadDigits.o xor.o
+all:	main.o restore.o net.o loadDigits.o xor.o
 	$(CC) main.o net.o loadDigits.o xor.o -o main -g 
+	$(CC) restore.o net.o loadDigits.o -o restore -g 
+
+restore.o: net.h restore.cc
+	$(CC) -c restore.cc -g
 
 main.o: net.h main.cc xor.h
 	$(CC) -c main.cc -g 
