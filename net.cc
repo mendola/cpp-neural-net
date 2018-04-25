@@ -1,9 +1,13 @@
 #include "net.h"
 #include <cassert>
 #include <cmath>
+#include <iostream>
+#include <fstream>
+#include <time.h>
 
 /*************** Function Definitions for Class Net ******************/
 Net::Net(const std::vector<unsigned> &netStructure, double Eta, double Alpha){
+  srand(time(NULL));
   unsigned numLayers = netStructure.size();
   m_recentAverageSmoothingFactor = 0.25;
   m_nOutputs = netStructure.back();
@@ -213,7 +217,7 @@ void Net::AdjustTrainingRate(double newEta, double newAlpha){
   for(unsigned l = 0; l < m_layers.size(); l++){
     std::cout<<"\nLayer "<<l<<": "<<std::endl;
     Layer currLayer = m_layers[l];
-    for(unsigned n = 0; n <= currLayer.size(); n++){
+    for(unsigned n = 0; n < currLayer.size(); n++){
       std::cout<<"\n\tNeuron "<<n<<": "<<std::endl;
       Neuron currNeuron = currLayer[n];
       currNeuron.setEta(newEta);
@@ -222,6 +226,45 @@ void Net::AdjustTrainingRate(double newEta, double newAlpha){
   }
 }
 
+unsigned Net::LoadWeights(const char* filepath){
+  std::ifstream iFile(filepath);
+  if(iFile.is_open()){
+    for (unsigned layerNum = 0; layerNum < m_layers.size(); layerNum++){
+      Layer currLayer = m_layers[layerNum];
+      for(unsigned neuronNum = 0; neuronNum < currLayer.size(); neuronNum++){
+        Neuron currNeuron = currLayer[neuronNum];
+        for(unsigned w = 0; w < currNeuron.m_outputConnections.size(); w++){
+          double newWeight;
+          iFile >> newWeight;
+          currNeuron.m_outputConnections[w].m_weight = newWeight;
+        }
+      }
+    }
+    return 0;
+  }else{
+    std::cout<<"Couldn't open output file."<<std::endl;
+    return 1;
+  }
+}
+
+unsigned Net::SaveWeights(const char* filepath){
+  std::ofstream oFile(filepath);
+  if(oFile.is_open()){
+    for (unsigned layerNum = 0; layerNum < m_layers.size(); layerNum++){
+      Layer currLayer = m_layers[layerNum];
+      for(unsigned neuronNum = 0; neuronNum < currLayer.size(); neuronNum++){
+        Neuron currNeuron = currLayer[neuronNum];
+        for(unsigned w = 0; w < currNeuron.m_outputConnections.size(); w++){
+          oFile << currNeuron.m_outputConnections[w].m_weight<<"\n";
+        }
+      }
+    }
+    return 0;
+  }else{
+    std::cout<<"Couldn't open output file."<<std::endl;
+    return 1;
+  }
+}
 /***********Function Definitions for class Neuron ***********************/
 Neuron::Neuron(const unsigned numOutputs, const unsigned index, double Eta, double Alpha){
   m_neuronIndex = index;

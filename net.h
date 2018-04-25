@@ -31,6 +31,8 @@ class Net{
     double TestSGD(std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels);
     void printWeightsNet();
     void AdjustTrainingRate(double newEta, double newAlpha);
+    unsigned LoadWeights(const char* filepath);
+    unsigned SaveWeights(const char* filepath);
   private:
     void SetTargets(unsigned short idx, std::vector<double> &vec);
     double classify(std::vector<double> output);
@@ -57,10 +59,10 @@ class Neuron{
     void printWeightsNeuron();
     double eta;  // Overal Net learning rate [0.0 -- 1.0]
     double alpha; // Momentum [0.0 -- 1.0]
+    std::vector<Connection> m_outputConnections;
   private:
     unsigned m_neuronIndex;
     double m_outputVal;
-    std::vector<Connection> m_outputConnections;
     static double transferFunction(const double in);
     static double deltaTransferFunction(const double in);
     double m_gradient;
