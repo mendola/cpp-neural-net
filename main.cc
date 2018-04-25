@@ -51,6 +51,20 @@ int main(){
   netStructure.push_back(hiddenLayerSize);
   netStructure.push_back(numOutputs);
 
+  double eta = 0.15;
+  double alpha = 0.1;
+
+  Net myNet(netStructure,eta,alpha);
+
+  for(unsigned i = 0; i<5; i++){
+    double acc = myNet.TrainEarlyStopping(50,15,trainData,trainLabels,testData,testLabels);
+    std::cout<<"Accuracy after ith round of optimization: "<<acc<<std::endl;
+    eta = 0.5*eta;
+    alpha = 0.5*alpha;
+    myNet.AdjustTrainingRate(eta,alpha);
+  }
+
+  /*
   double etaVals[5] = {0.1,0.15};
   double alphaVals[1] = {0.1};
   std::vector<std::vector<double> > accuracies;
@@ -59,18 +73,13 @@ int main(){
     accuracies[i].resize(5);
   }
   
-  //
+  
   for(unsigned i = 0; i < 2; i++){
     for(unsigned j = 0; j< 1; j++){
       std::cout<<"Working on i="<<i<<"  j="<<j<<std::endl;
       Net myNet(netStructure,etaVals[i],alphaVals[j]);
 //      myNet.printWeightsNet
-      double acc;
-      for(unsigned epoch = 0; epoch < numEpochs; epoch++){
-        myNet.TrainSGD(1,trainData, trainLabels);
-        acc = myNet.TestSGD(testData, testLabels);
-        std::cout<<"\n\tEpoch " << epoch<< "\tAccuracy = "<<acc<<std::endl;
-      }
+      double acc = myNet.TrainEarlyStopping(100,15,trainData,trainLabels,testData,testLabels);
       accuracies[i][j] = acc;  
     }
   }
@@ -91,5 +100,6 @@ int main(){
   }
 
   std::cout<<"Best parameters: Eta = "<<etaVals[imax] << "  Alpha = "<<alphaVals[jmax]<<std::endl;
+ */
   return 0;
 }

@@ -27,8 +27,10 @@ class Net{
     void getResults(std::vector<double> &resultVals);
     double getRecentAvgError() {return m_recentAverageError;}
     void TrainSGD(unsigned nEpochs, std::vector<std::vector<double> > &trainData, std::vector<unsigned short> &trainLabels);
+    double TrainEarlyStopping(unsigned maxEpochs, unsigned patience, std::vector<std::vector<double> > &trainData, std::vector<unsigned short> &trainLabels, std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels);
     double TestSGD(std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels);
     void printWeightsNet();
+    void AdjustTrainingRate(double newEta, double newAlpha);
   private:
     void SetTargets(unsigned short idx, std::vector<double> &vec);
     double classify(std::vector<double> output);
@@ -49,9 +51,9 @@ class Neuron{
     void calcOutputGradient(double targetVal);
     void calcHiddenLayerGradients(Layer &nextLayer);
     double sumDOW(const Layer &nextLayer);
-    void updateInputWeights(Layer &prevLayer);
-    void setAlpha(double a);
-    void setEta(double e);
+    void updateInputWeights(Layer &prevLayer); 
+    void setAlpha(double a) {alpha = a;}
+    void setEta(double e) {eta = e;}
     void printWeightsNeuron();
     double eta;  // Overal Net learning rate [0.0 -- 1.0]
     double alpha; // Momentum [0.0 -- 1.0]

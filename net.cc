@@ -154,8 +154,33 @@ void Net::TrainSGD(unsigned nEpochs, std::vector<std::vector<double> > &trainDat
       backPropagate(targets);
       //PrintRecentAvgError(myNet);
     }   
-    printWeightsNet(); 
+    //printWeightsNet(); 
   }
+}
+
+// Train until accuracy on test dataset stops increasing or maxEpochs is reached
+double Net::TrainEarlyStopping(unsigned maxEpochs, unsigned patience, std::vector<std::vector<double> > &trainData, std::vector<unsigned short> &trainLabels, std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels){
+  double acc;
+  double maxAcc = 0;
+  double epochsSinceIncrease = 0;
+  std::vector<double> accList;
+  for(unsigned epoch = 0; epoch < maxEpochs; epoch++){
+    this->TrainSGD(1,trainData, trainLabels);
+    acc = this->TestSGD(testData, testLabels);
+    std::cout<<"\n\tEpoch " << epoch<< "\tAccuracy = "<<acc<<std::endl;
+    accList.push_back(acc);
+    if(maxAcc >= acc){
+      epochsSinceIncrease++;
+      if(epochsSinceIncrease > patience){
+        return acc;
+      }
+    } else{
+      maxAcc = acc;
+      epochsSinceIncrease = 0;
+    }
+  }
+  std::cout<<"MaxEpochs reached without converging."<<std::endl;
+  return acc;
 }
 
 double Net::TestSGD(std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels){
@@ -184,6 +209,18 @@ double Net::TestSGD(std::vector<std::vector<double> > &testData, std::vector<uns
   return Accuracy;
 }
 
+void Net::AdjustTrainingRate(double newEta, double newAlpha){
+  for(unsigned l = 0; l < m_layers.size(); l++){
+    std::cout<<"\nLayer "<<l<<": "<<std::endl;
+    Layer currLayer = m_layers[l];
+    for(unsigned n = 0; n <= currLayer.size(); n++){
+      std::cout<<"\n\tNeuron "<<n<<": "<<std::endl;
+      Neuron currNeuron = currLayer[n];
+      currNeuron.setEta(newEta);
+      currNeuron.setAlpha(newAlpha);
+    }
+  }
+}
 
 /***********Function Definitions for class Neuron ***********************/
 Neuron::Neuron(const unsigned numOutputs, const unsigned index, double Eta, double Alpha){
