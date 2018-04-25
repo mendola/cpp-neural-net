@@ -6,6 +6,8 @@
 Net::Net(const std::vector<unsigned> &netStructure, double Eta, double Alpha){
   unsigned numLayers = netStructure.size();
   m_recentAverageSmoothingFactor = 0.25;
+  m_nOutputs = netStructure.back();
+
   for (unsigned layerNum = 0; layerNum < numLayers; layerNum++){
     // Create Layer
     m_layers.push_back(Layer());
@@ -58,7 +60,7 @@ void Net::backPropagate(const std::vector<double> &targetVals){
   // Recent average measurement
   m_recentAverageError =  (m_recentAverageError * m_recentAverageSmoothingFactor + m_error) \
                         / (m_recentAverageSmoothingFactor + 1.0);
-
+  std::cout<<"Recent Error: "<<m_recentAverageError<<std::endl;
   // Calculate output layer gradients
       //std::cout<<"output gradient: ";
   for (unsigned n = 0; n<outputLayer.size(); n++){
@@ -93,6 +95,81 @@ void Net::getResults(std::vector<double> &resultVals){
   }
 }
 
+void Net::SetTargets(unsigned short idx, std::vector<double> &vec){
+  static unsigned prevIdx = 0;
+  vec[prevIdx] = 0.0;
+  vec[idx] = 1.0;
+  prevIdx = idx;
+}
+
+double Net::classify(std::vector<double> output){
+  unsigned imax = 0;
+  double valmax = 0;
+  for(unsigned i = 0; i< output.size(); i++){
+    if(output[i] > valmax){
+      valmax = output[i];
+      imax = i;
+    }
+  }
+  return (double)imax;
+}
+
+void Net::TrainSGD(unsigned nEpochs, std::vector<std::vector<double> > &trainData, std::vector<unsigned short> &trainLabels){
+  unsigned nSamples = trainData.size();
+
+  std::vector<double> targets, results;
+  results.resize(m_nOutputs);
+  targets.resize(m_nOutputs);
+  std::fill(targets.begin(),targets.end(), 0.0);
+
+  for(unsigned epoch = 0; epoch < nEpochs; epoch++){
+    unsigned sampleIdx[trainData.size()];
+
+    // Create a random sampling of the dataset
+    for(unsigned i = 0; i<nSamples; i++){
+      sampleIdx[i] = rand() % nSamples;
+    }
+
+    for(unsigned img = 0; img < nSamples; img++){
+      //std::cout<<"Training img number " <<img<<std::endl;
+      SetTargets(trainLabels[sampleIdx[img]], targets);
+      feedForward(trainData[sampleIdx[img]]);
+      //PrintImg(trainData[img]);
+      getResults(results);
+      //PrintVals(results,"Results: ",10);
+      //PrintVals(targets, "Targets: ",10);
+      backPropagate(targets);
+      //PrintRecentAvgError(myNet);
+    }    
+  }
+}
+
+double Net::TestSGD(std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels){
+  std::vector<double> results;
+  results.resize(m_nOutputs);
+  std::vector<unsigned short>::iterator itLabel = testLabels.begin();
+  std::vector<std::vector<double> >::iterator itData = testData.begin();
+  unsigned correct = 0;
+  unsigned tot = 0;
+  for(unsigned img = 0; img < testLabels.size(); img++){
+    feedForward(*itData);
+    getResults(results);
+    double classifiedDigit = classify(results);
+    if(classifiedDigit == *itLabel){
+      correct++;
+      //std::cout<<"CORRECT"<<std::endl;
+    }else{
+      //std::cout<<"INCORRECT"<<std::endl;
+    }
+    itLabel++;
+    itData++;
+    tot++;
+  }
+
+  double Accuracy = (double)correct / (double)tot;
+  return Accuracy;
+}
+
 
 /***********Function Definitions for class Neuron ***********************/
 Neuron::Neuron(const unsigned numOutputs, const unsigned index, double Eta, double Alpha){
@@ -125,12 +202,14 @@ double Neuron::deltaTransferFunction(const double in){
   return (double)(transferFunction(in)*(1-transferFunction(in)));
 }
 
+// Eq BP1 (from Neural Networks and Deep Learning.com)
 void Neuron::calcOutputGradient(double targetVal){
   double delta = targetVal - m_outputVal;
   m_gradient = delta * Neuron::deltaTransferFunction(m_outputVal);
   //std::cout<<"m_gradient: "<<m_gradient<<std::endl;
 }
 
+// Helper for BP2 (essentially computes error of this ne
 double Neuron::sumDOW(const Layer &nextLayer){
   double sum = 0.0;
 
@@ -141,6 +220,7 @@ double Neuron::sumDOW(const Layer &nextLayer){
   return sum;
 }
 
+// Eq BP2
 void Neuron::calcHiddenLayerGradients(Layer &nextLayer){
   double dow = sumDOW(nextLayer);
   m_gradient = dow * Neuron::deltaTransferFunction(m_outputVal);
@@ -154,6 +234,7 @@ void Neuron::updateInputWeights(Layer &prevLayer){
 
     double newDeltaWeight = 
       //Individual input, scaled by gradint and train rate:
+      // Eta scales the "learning rate" and alpha gives momentum from previous updates
       eta * neuron.getOutputVal() * m_gradient + alpha * oldDeltaWeight;
 
     neuron.m_outputConnections[m_neuronIndex].m_deltaWeight = newDeltaWeight;

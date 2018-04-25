@@ -16,7 +16,7 @@ class Connection{
     double m_weight;
     double m_deltaWeight;
   private:
-    static double randWeight() {return (double)rand()/(double)RAND_MAX;}
+    static double randWeight() {return (double)rand()/(double)5*RAND_MAX;} 
 };
 
 class Net{
@@ -26,11 +26,16 @@ class Net{
     void backPropagate(const std::vector<double> &targetVals);
     void getResults(std::vector<double> &resultVals);
     double getRecentAvgError() {return m_recentAverageError;}
+    void TrainSGD(unsigned nEpochs, std::vector<std::vector<double> > &trainData, std::vector<unsigned short> &trainLabels);
+    double TestSGD(std::vector<std::vector<double> > &testData, std::vector<unsigned short> &testLabels);
   private:
+    void SetTargets(unsigned short idx, std::vector<double> &vec);
+    double classify(std::vector<double> output);
     std::vector<Layer> m_layers;  // m_layers[Layer #][Neuron #]
     double m_error;
     double m_recentAverageError;
     double m_recentAverageSmoothingFactor;
+    unsigned m_nOutputs;
 };
 
 
