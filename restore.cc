@@ -44,7 +44,7 @@ int main(){
   unsigned dataSize = 2000;
   unsigned numInputs = 28*28;
   unsigned numOutputs = 10;
-  unsigned hiddenLayerSize = 30;
+  unsigned hiddenLayerSize = 5;
   unsigned numEpochs = 50;
   std::vector<unsigned> netStructure;
   netStructure.push_back(numInputs);
@@ -61,5 +61,7 @@ int main(){
     double acc = myNet.TestSGD(testData, testLabels);
     std::cout<<"Accuracy: "<<acc<<std::endl;
   }
+  const char *path2 = "model2.txt";
+  myNet.SaveWeights(path2);
   return 0;
 }

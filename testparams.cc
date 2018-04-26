@@ -44,27 +44,34 @@ int main(){
   unsigned dataSize = 2000;
   unsigned numInputs = 28*28;
   unsigned numOutputs = 10;
-  unsigned hiddenLayerSize = 5;
-  unsigned numEpochs = 50;
+  unsigned hiddenLayerSize = 50;
+  unsigned numEpochs = 100;
   std::vector<unsigned> netStructure;
   netStructure.push_back(numInputs);
   netStructure.push_back(hiddenLayerSize);
   netStructure.push_back(hiddenLayerSize);
   netStructure.push_back(numOutputs);
 
-  double eta = 0.15;
+  double etavals[5] ={0.075,0.1,0.15,0.25,0.35};
   double alpha = 0.1;
-
+  std::vector<double> accList;
+for (unsigned j = 0; j< 5; j++){
+  double eta = etavals[j];
   Net myNet(netStructure,eta,alpha);
-
-  for(unsigned i = 0; i<1; i++){
-    double acc = myNet.TrainEarlyStopping(5,15,trainData,trainLabels,testData,testLabels);
+  double acc;
+  for(unsigned i = 0; i<3; i++){
+    acc = myNet.TrainEarlyStopping(150,30,trainData,trainLabels,testData,testLabels);
     std::cout<<"Accuracy after ith round of optimization: "<<acc<<std::endl;
     eta = 0.5*eta;
     alpha = 0.5*alpha;
     myNet.AdjustTrainingRate(eta,alpha);
   }
-  myNet.SaveWeights(savepath);
+  accList.push_back(acc);
+}
 
+for(unsigned j = 0; j<5;j++){
+  std::cout<<"Accuracy for j = "<<j<<": "<<accList[j]<<std::endl;
+//  myNet.SaveWeights(savepath);
+}
   return 0;
 }

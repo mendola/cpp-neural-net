@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
-
+#include <string>
 /*************** Function Definitions for Class Net ******************/
 Net::Net(const std::vector<unsigned> &netStructure, double Eta, double Alpha){
   srand(time(NULL));
@@ -215,10 +215,10 @@ double Net::TestSGD(std::vector<std::vector<double> > &testData, std::vector<uns
 
 void Net::AdjustTrainingRate(double newEta, double newAlpha){
   for(unsigned l = 0; l < m_layers.size(); l++){
-    std::cout<<"\nLayer "<<l<<": "<<std::endl;
+//    std::cout<<"\nLayer "<<l<<": "<<std::endl;
     Layer currLayer = m_layers[l];
     for(unsigned n = 0; n < currLayer.size(); n++){
-      std::cout<<"\n\tNeuron "<<n<<": "<<std::endl;
+//      std::cout<<"\n\tNeuron "<<n<<": "<<std::endl;
       Neuron currNeuron = currLayer[n];
       currNeuron.setEta(newEta);
       currNeuron.setAlpha(newAlpha);
@@ -229,14 +229,17 @@ void Net::AdjustTrainingRate(double newEta, double newAlpha){
 unsigned Net::LoadWeights(const char* filepath){
   std::ifstream iFile(filepath);
   if(iFile.is_open()){
-    for (unsigned layerNum = 0; layerNum < m_layers.size(); layerNum++){
+    for (unsigned layerNum = 0; layerNum < m_layers.size()-1; layerNum++){
       Layer currLayer = m_layers[layerNum];
       for(unsigned neuronNum = 0; neuronNum < currLayer.size(); neuronNum++){
         Neuron currNeuron = currLayer[neuronNum];
-        for(unsigned w = 0; w < currNeuron.m_outputConnections.size(); w++){
-          double newWeight;
+        for(unsigned w = 0; w <= currNeuron.m_outputConnections.size(); w++){
+         // std::cout<<"Loading layer "<<layerNum<<" | Neuron " << neuronNum << " | Weight " << w;
+          std::string newWeight;
           iFile >> newWeight;
-          currNeuron.m_outputConnections[w].m_weight = newWeight;
+          double newW = std::atof(newWeight.c_str());
+	  std::cout<<newW<<std::endl;
+          currNeuron.m_outputConnections[w].m_weight = newW;
         }
       }
     }
@@ -250,11 +253,12 @@ unsigned Net::LoadWeights(const char* filepath){
 unsigned Net::SaveWeights(const char* filepath){
   std::ofstream oFile(filepath);
   if(oFile.is_open()){
-    for (unsigned layerNum = 0; layerNum < m_layers.size(); layerNum++){
+    for (unsigned layerNum = 0; layerNum < m_layers.size()-1; layerNum++){
       Layer currLayer = m_layers[layerNum];
       for(unsigned neuronNum = 0; neuronNum < currLayer.size(); neuronNum++){
         Neuron currNeuron = currLayer[neuronNum];
-        for(unsigned w = 0; w < currNeuron.m_outputConnections.size(); w++){
+        for(unsigned w = 0; w <= currNeuron.m_outputConnections.size(); w++){
+          std::cout<<"Saving layer "<<layerNum<<" | Neuron " << neuronNum << " | Weight " << w<<std::endl;
           oFile << currNeuron.m_outputConnections[w].m_weight<<"\n";
         }
       }

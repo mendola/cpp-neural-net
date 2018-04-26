@@ -16,7 +16,7 @@ class Connection{
     double m_weight;
     double m_deltaWeight;
   private:
-    static double randWeight() {return (double)rand()/(double)RAND_MAX/(double)5;} 
+    static double randWeight() {return 0.0;}// {return (double)rand()/(double)RAND_MAX/(double)5;} 
 };
 
 class Net{
