@@ -58,13 +58,13 @@ int main(){
   Net myNet(netStructure,eta,alpha);
 
   for(unsigned i = 0; i<1; i++){
-    double acc = myNet.TrainEarlyStopping(5,15,trainData,trainLabels,testData,testLabels);
+    myNet.TrainEarlyStopping(5,15,trainData,trainLabels,testData,testLabels);
+    double acc = myNet.TestSGD(testData,testLabels);
     std::cout<<"Accuracy after ith round of optimization: "<<acc<<std::endl;
     eta = 0.5*eta;
     alpha = 0.5*alpha;
     myNet.AdjustTrainingRate(eta,alpha);
   }
   myNet.SaveWeights(savepath);
-
   return 0;
 }
